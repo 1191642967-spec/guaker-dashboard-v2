@@ -245,14 +245,6 @@ body {
         
         <div class="chart-grid">
             <div class="chart-card">
-                <div class="chart-title">📈 GMV趋势</div>
-                <div class="chart-container" id="chart-gmv"></div>
-            </div>
-            <div class="chart-card">
-                <div class="chart-title">👥 流量趋势</div>
-                <div class="chart-container" id="chart-traffic"></div>
-            </div>
-            <div class="chart-card">
                 <div class="chart-title">🎯 转化漏斗</div>
                 <div class="funnel-container" id="funnel"></div>
             </div>
@@ -455,12 +447,6 @@ function renderDaily() {
             <div class="kpi-sub">${k.sub}</div>
         </div>
     `).join('');
-    
-    // GMV Chart
-    renderLineChart('chart-gmv', data, ['直播期间累计成交金额'], 'GMV (元)', '#f5af19');
-    
-    // Traffic Chart
-    renderLineChart('chart-traffic', data, ['进入直播间人数', '直播间曝光人数'], '人数', '#667eea');
     
     // ROI Chart
     renderLineChart('chart-roi', data, ['总UV价值', '千次观看成交金额'], '数值', '#4ade80');
