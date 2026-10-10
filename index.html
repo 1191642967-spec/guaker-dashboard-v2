@@ -237,7 +237,6 @@ body {
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('daily')">日数据看板</button>
         <button class="tab-btn" onclick="switchTab('stage')">阶段数据</button>
-        <button class="tab-btn" onclick="switchTab('anchor')">主播数据</button>
     </div>
 
     <!-- Daily Section -->
@@ -299,6 +298,43 @@ body {
                 </div>
             </div>
         </div>
+
+        <!-- 主播综合排名 -->
+        <div class="chart-grid">
+            <div class="chart-card full">
+                <div class="chart-title">🏆 主播综合排名（本月累计）</div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="anchorTable">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>主播</th>
+                                <th>直播时长(h)</th>
+                                <th>成交金额(元)</th>
+                                <th>消耗(元)</th>
+                                <th>ROI</th>
+                                <th>时均GMV</th>
+                                <th>曝光点击率</th>
+                                <th>点击成交率</th>
+                            </tr>
+                        </thead>
+                        <tbody id="anchorTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主播对比图 -->
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="chart-title">📊 主播GMV对比</div>
+                <div class="chart-container" id="chart-anchor-gmv"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">⚡ 主播ROI对比</div>
+                <div class="chart-container" id="chart-anchor-roi"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Stage Section -->
@@ -312,40 +348,6 @@ body {
         </div>
     </div>
 
-    <!-- Anchor Section -->
-    <div class="section" id="section-anchor">
-        <div class="chart-card full" style="margin-bottom: 20px;">
-            <div class="chart-title">🏆 主播综合排名</div>
-            <div style="overflow-x: auto;">
-                <table class="data-table" id="anchorTable">
-                    <thead>
-                        <tr>
-                            <th>排名</th>
-                            <th>主播</th>
-                            <th>直播时长(h)</th>
-                            <th>成交金额(元)</th>
-                            <th>消耗(元)</th>
-                            <th>ROI</th>
-                            <th>时均GMV</th>
-                            <th>曝光点击率</th>
-                            <th>点击成交率</th>
-                        </tr>
-                    </thead>
-                    <tbody id="anchorTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-        <div class="chart-grid">
-            <div class="chart-card">
-                <div class="chart-title">📊 主播GMV对比</div>
-                <div class="chart-container" id="chart-anchor-gmv"></div>
-            </div>
-            <div class="chart-card">
-                <div class="chart-title">⚡ 主播ROI对比</div>
-                <div class="chart-container" id="chart-anchor-roi"></div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -381,7 +383,7 @@ function switchAccount(account) {
 
 function switchTab(tab) {
     document.querySelectorAll('.tab-btn').forEach((btn, i) => {
-        const tabs = ['daily', 'stage', 'anchor'];
+        const tabs = ['daily', 'stage'];
         btn.classList.toggle('active', tabs[i] === tab);
     });
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -410,7 +412,6 @@ function formatMoney(n) {
 function renderAll() {
     renderDaily();
     renderStage();
-    renderAnchor();
 }
 
 function renderDaily() {
@@ -468,6 +469,9 @@ function renderDaily() {
     
     // 主播昨日数据
     renderYesterdayAnchors(latest.date);
+    
+    // 主播综合排名和对比图
+    renderAnchor();
 }
 
 function renderLineChart(id, data, metrics, yName, color) {
