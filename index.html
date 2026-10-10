@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>桂格直播间运营数据看板</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    color: #e0e0e0;
+    padding: 20px;
+}
+.container { max-width: 1600px; margin: 0 auto; }
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 20px 30px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.header h1 {
+    font-size: 24px;
+    background: linear-gradient(90deg, #f5af19, #f12711);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.header-right { display: flex; align-items: center; gap: 15px; }
+.update-time { font-size: 13px; color: #888; }
+
+/* Account Switcher */
+.account-switcher {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.account-btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: rgba(255,255,255,0.05);
+    color: #aaa;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.account-btn.active {
+    background: linear-gradient(135deg, #f5af19, #f12711);
+    color: white;
+    box-shadow: 0 4px 20px rgba(241, 39, 17, 0.3);
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 20px;
+    background: rgba(255,255,255,0.05);
+    padding: 6px;
+    border-radius: 12px;
+    width: fit-content;
+}
+.tab-btn {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: transparent;
+    color: #aaa;
+}
+.tab-btn.active {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+
+/* KPI Cards */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.kpi-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: transform 0.3s;
+}
+.kpi-card:hover { transform: translateY(-3px); }
+.kpi-label { font-size: 13px; color: #888; margin-bottom: 8px; }
+.kpi-value { font-size: 28px; font-weight: 700; color: #fff; }
+.kpi-value.good { color: #4ade80; }
+.kpi-value.warn { color: #fbbf24; }
+.kpi-value.bad { color: #f87171; }
+.kpi-sub { font-size: 12px; color: #666; margin-top: 5px; }
+
+/* Chart Cards */
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.chart-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.chart-card.full { grid-column: 1 / -1; }
+.chart-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #fff;
+}
+.chart-container { width: 100%; height: 350px; }
+
+/* Funnel */
+.funnel-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 0;
+}
+.funnel-step {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 25px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s;
+    min-width: 300px;
+}
+.funnel-step:hover { transform: scale(1.02); }
+.funnel-label { font-size: 14px; }
+.funnel-value { font-size: 18px; }
+.funnel-rate { font-size: 12px; opacity: 0.8; margin-left: 10px; }
+
+/* Table */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.data-table th {
+    background: rgba(255,255,255,0.08);
+    padding: 12px 10px;
+    text-align: left;
+    color: #aaa;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.data-table td {
+    padding: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.data-table tr:hover { background: rgba(255,255,255,0.03); }
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+}
+.rank-1 { background: linear-gradient(135deg, #f5af19, #f12711); color: white; }
+.rank-2 { background: linear-gradient(135deg, #c0c0c0, #808080); color: white; }
+.rank-3 { background: linear-gradient(135deg, #cd7f32, #8b4513); color: white; }
+.rank-other { background: rgba(255,255,255,0.1); color: #888; }
+
+/* Section */
+.section { display: none; }
+.section.active { display: block; }
+
+/* Screenshot button */
+.screenshot-btn {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.screenshot-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .chart-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .header { flex-direction: column; gap: 15px; text-align: center; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <h1>🔥 桂格直播间运营数据看板</h1>
+        <div class="header-right">
+            <span class="update-time" id="updateTime"></span>
+            <button class="screenshot-btn" onclick="captureScreen()">📸 截图</button>
+        </div>
+    </div>
+
+    <!-- Account Switcher -->
+    <div class="account-switcher">
+        <button class="account-btn active" onclick="switchAccount('桂格优选')">桂格优选</button>
+        <button class="account-btn" onclick="switchAccount('桂格官方')">桂格官方</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('daily')">日数据看板</button>
+        <button class="tab-btn" onclick="switchTab('stage')">阶段数据</button>
+        <button class="tab-btn" onclick="switchTab('anchor')">主播数据</button>
+    </div>
+
+    <!-- Daily Section -->
+    <div class="section active" id="section-daily">
+        <div class="kpi-grid" id="kpiGrid"></div>
+        
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="chart-title">📈 GMV趋势</div>
+                <div class="chart-container" id="chart-gmv"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">👥 流量趋势</div>
+                <div class="chart-container" id="chart-traffic"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">🎯 转化漏斗</div>
+                <div class="funnel-container" id="funnel"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">💰 投产比趋势</div>
+                <div class="chart-container" id="chart-roi"></div>
+            </div>
+            <div class="chart-card full">
+                <div class="chart-title">📊 核心指标趋势</div>
+                <div class="chart-container" id="chart-multi"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stage Section -->
+    <div class="section" id="section-stage">
+        <div class="kpi-grid" id="stageKpiGrid"></div>
+        <div class="chart-grid">
+            <div class="chart-card full">
+                <div class="chart-title">📅 周度数据对比</div>
+                <div class="chart-container" id="chart-weekly"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Anchor Section -->
+    <div class="section" id="section-anchor">
+        <div class="chart-card full" style="margin-bottom: 20px;">
+            <div class="chart-title">🏆 主播综合排名</div>
+            <div style="overflow-x: auto;">
+                <table class="data-table" id="anchorTable">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>主播</th>
+                            <th>直播时长(h)</th>
+                            <th>成交金额(元)</th>
+                            <th>消耗(元)</th>
+                            <th>ROI</th>
+                            <th>时均GMV</th>
+                            <th>曝光点击率</th>
+                            <th>点击成交率</th>
+                        </tr>
+                    </thead>
+                    <tbody id="anchorTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="chart-title">📊 主播GMV对比</div>
+                <div class="chart-container" id="chart-anchor-gmv"></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">⚡ 主播ROI对比</div>
+                <div class="chart-container" id="chart-anchor-roi"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let rawData = null;
+let currentAccount = '桂格优选';
+let charts = {};
+
+// Load data
+fetch('data.json')
+    .then(r => r.json())
+    .then(data => {
+        rawData = data;
+        document.getElementById('updateTime').textContent = '更新时间: ' + data.update_time;
+        renderAll();
+    })
+    .catch(err => console.error('Failed to load data:', err));
+
+function getAccountData(account) {
+    return rawData.daily_data.filter(d => d.account === account);
+}
+
+function getAccountAnchors(account) {
+    return rawData.anchor_data.filter(d => d.account === account);
+}
+
+function switchAccount(account) {
+    currentAccount = account;
+    document.querySelectorAll('.account-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', btn.textContent === account);
+    });
+    renderAll();
+}
+
+function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+        const tabs = ['daily', 'stage', 'anchor'];
+        btn.classList.toggle('active', tabs[i] === tab);
+    });
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('section-' + tab).classList.add('active');
+    setTimeout(() => {
+        Object.values(charts).forEach(c => c && c.resize());
+    }, 100);
+}
+
+function formatNumber(n, decimals = 0) {
+    if (n === null || n === undefined || isNaN(n)) return '-';
+    if (n >= 10000) return (n / 10000).toFixed(1) + 'w';
+    return n.toLocaleString('zh-CN', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+function formatPercent(n) {
+    if (n === null || n === undefined || isNaN(n)) return '-';
+    return (n * 100).toFixed(2) + '%';
+}
+
+function formatMoney(n) {
+    if (n === null || n === undefined || isNaN(n)) return '-';
+    return '¥' + formatNumber(n, 2);
+}
+
+function renderAll() {
+    renderDaily();
+    renderStage();
+    renderAnchor();
+}
+
+function renderDaily() {
+    const data = getAccountData(currentAccount);
+    if (!data.length) return;
+    
+    const latest = data[data.length - 1];
+    const m = latest.metrics;
+    
+    // KPI Cards
+    const kpis = [
+        { label: '直播时长', value: m['直播时长(h)'] ? m['直播时长(h)'] + 'h' : '-', sub: '小时' },
+        { label: '累计成交金额', value: formatMoney(m['直播期间累计成交金额']), sub: 'GMV' },
+        { label: '时均GMV', value: formatMoney(m['时均GMV']), sub: '每小时产出' },
+        { label: '进入直播间人数', value: formatNumber(m['进入直播间人数']), sub: 'UV' },
+        { label: '直播间曝光人数', value: formatNumber(m['直播间曝光人数']), sub: '曝光量' },
+        { label: '曝光-进入转化率', value: formatPercent(m['曝光-进入转化率']), sub: '流量转化' },
+        { label: '客单价', value: formatMoney(m['客单价']), sub: '平均订单金额' },
+        { label: '互动率', value: formatPercent(m['互动率']), sub: '用户互动' },
+    ];
+    
+    document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
+        <div class="kpi-card">
+            <div class="kpi-label">${k.label}</div>
+            <div class="kpi-value">${k.value}</div>
+            <div class="kpi-sub">${k.sub}</div>
+        </div>
+    `).join('');
+    
+    // GMV Chart
+    renderLineChart('chart-gmv', data, ['直播期间累计成交金额'], 'GMV (元)', '#f5af19');
+    
+    // Traffic Chart
+    renderLineChart('chart-traffic', data, ['进入直播间人数', '直播间曝光人数'], '人数', '#667eea');
+    
+    // ROI Chart
+    renderLineChart('chart-roi', data, ['总UV价值', '千次观看成交金额'], '数值', '#4ade80');
+    
+    // Multi Chart
+    renderMultiAxisChart('chart-multi', data);
+    
+    // Funnel
+    renderFunnel(m);
+}
+
+function renderLineChart(id, data, metrics, yName, color) {
+    if (charts[id]) charts[id].dispose();
+    const chart = echarts.init(document.getElementById(id));
+    charts[id] = chart;
+    
+    const dates = data.map(d => d.date.slice(5));
+    const series = metrics.map((metric, i) => ({
+        name: metric,
+        type: 'line',
+        smooth: true,
+        data: data.map(d => d.metrics[metric]),
+        itemStyle: { color: i === 0 ? color : adjustColor(color, 40) },
+        areaStyle: i === 0 ? { opacity: 0.1 } : undefined,
+    }));
+    
+    chart.setOption({
+        tooltip: { trigger: 'axis' },
+        legend: { data: metrics, textStyle: { color: '#aaa' } },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: dates, axisLabel: { color: '#888' } },
+        yAxis: { type: 'value', name: yName, axisLabel: { color: '#888' }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } } },
+        series
+    });
+}
+
+function renderMultiAxisChart(id, data) {
+    if (charts[id]) charts[id].dispose();
+    const chart = echarts.init(document.getElementById(id));
+    charts[id] = chart;
+    
+    const dates = data.map(d => d.date.slice(5));
+    
+    chart.setOption({
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['GMV', '进入人数', '转化率', '客单价'], textStyle: { color: '#aaa' } },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: dates, axisLabel: { color: '#888' } },
+        yAxis: [
+            { type: 'value', name: 'GMV/人数', axisLabel: { color: '#888' }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } } },
+            { type: 'value', name: '比率/单价', axisLabel: { color: '#888', formatter: v => v + '%' }, splitLine: { show: false } }
+        ],
+        series: [
+            { name: 'GMV', type: 'bar', data: data.map(d => d.metrics['直播期间累计成交金额']), itemStyle: { color: '#f5af19' } },
+            { name: '进入人数', type: 'bar', data: data.map(d => d.metrics['进入直播间人数']), itemStyle: { color: '#667eea' } },
+            { name: '转化率', type: 'line', yAxisIndex: 1, data: data.map(d => d.metrics['曝光-进入转化率'] ? d.metrics['曝光-进入转化率'] * 100 : null), smooth: true, itemStyle: { color: '#4ade80' } },
+            { name: '客单价', type: 'line', yAxisIndex: 1, data: data.map(d => d.metrics['客单价']), smooth: true, itemStyle: { color: '#f87171' } },
+        ]
+    });
+}
+
+function renderFunnel(m) {
+    const exposure = m['直播间曝光人数'] || 0;
+    const enter = m['进入直播间人数'] || 0;
+    const click = m['成交人数'] || 0;
+    const order = m['订单数'] || 0;
+    const gmv = m['直播期间累计成交金额'] || 0;
+    
+    const steps = [
+        { label: '直播间曝光', value: exposure, color: 'linear-gradient(90deg, #667eea, #764ba2)' },
+        { label: '进入直播间', value: enter, color: 'linear-gradient(90deg, #f093fb, #f5576c)' },
+        { label: '成交人数', value: click, color: 'linear-gradient(90deg, #4facfe, #00f2fe)' },
+        { label: '订单数', value: order, color: 'linear-gradient(90deg, #43e97b, #38f9d7)' },
+        { label: 'GMV', value: '¥' + formatNumber(gmv), color: 'linear-gradient(90deg, #fa709a, #fee140)' },
+    ];
+    
+    const rates = [];
+    for (let i = 1; i < steps.length; i++) {
+        const prev = typeof steps[i-1].value === 'number' ? steps[i-1].value : 0;
+        const curr = typeof steps[i].value === 'number' ? steps[i].value : 0;
+        rates.push(prev > 0 ? ((curr / prev) * 100).toFixed(1) + '%' : '-');
+    }
+    
+    document.getElementById('funnel').innerHTML = steps.map((step, i) => `
+        <div class="funnel-step" style="background: ${step.color}; width: ${100 - i * 12}%;">
+            <span class="funnel-label">${step.label}</span>
+            <span>
+                <span class="funnel-value">${typeof step.value === 'number' ? formatNumber(step.value) : step.value}</span>
+                ${i > 0 ? `<span class="funnel-rate">转化率 ${rates[i-1]}</span>` : ''}
+            </span>
+        </div>
+    `).join('');
+}
+
+function renderStage() {
+    const data = getAccountData(currentAccount);
+    if (!data.length) return;
+    
+    // Calculate weekly data
+    const weeks = {};
+    data.forEach(d => {
+        const date = new Date(d.date);
+        const weekNum = getWeekNumber(date);
+        if (!weeks[weekNum]) weeks[weekNum] = { dates: [], gmv: 0, traffic: 0, duration: 0, orders: 0 };
+        weeks[weekNum].dates.push(d.date);
+        weeks[weekNum].gmv += d.metrics['直播期间累计成交金额'] || 0;
+        weeks[weekNum].traffic += d.metrics['进入直播间人数'] || 0;
+        weeks[weekNum].duration += d.metrics['直播时长(h)'] || 0;
+        weeks[weekNum].orders += d.metrics['订单数'] || 0;
+    });
+    
+    const weekLabels = Object.keys(weeks).sort();
+    const weekData = weekLabels.map(w => weeks[w]);
+    
+    // Stage KPIs (month to date)
+    const totalGmv = data.reduce((sum, d) => sum + (d.metrics['直播期间累计成交金额'] || 0), 0);
+    const totalTraffic = data.reduce((sum, d) => sum + (d.metrics['进入直播间人数'] || 0), 0);
+    const totalDuration = data.reduce((sum, d) => sum + (d.metrics['直播时长(h)'] || 0), 0);
+    const totalOrders = data.reduce((sum, d) => sum + (d.metrics['订单数'] || 0), 0);
+    const avgRoi = totalGmv / (data.reduce((sum, d) => sum + (d.metrics['直播时长(h)'] || 0), 0) || 1);
+    
+    const kpis = [
+        { label: '月度累计GMV', value: formatMoney(totalGmv), sub: `${data.length}天` },
+        { label: '累计直播时长', value: totalDuration.toFixed(1) + 'h', sub: '总时长' },
+        { label: '累计进入人数', value: formatNumber(totalTraffic), sub: '总UV' },
+        { label: '累计订单数', value: formatNumber(totalOrders), sub: '总订单' },
+        { label: '日均GMV', value: formatMoney(totalGmv / data.length), sub: '平均每天' },
+        { label: '时均GMV', value: formatMoney(totalGmv / totalDuration), sub: '每小时产出' },
+    ];
+    
+    document.getElementById('stageKpiGrid').innerHTML = kpis.map(k => `
+        <div class="kpi-card">
+            <div class="kpi-label">${k.label}</div>
+            <div class="kpi-value">${k.value}</div>
+            <div class="kpi-sub">${k.sub}</div>
+        </div>
+    `).join('');
+    
+    // Weekly chart
+    if (charts['chart-weekly']) charts['chart-weekly'].dispose();
+    const chart = echarts.init(document.getElementById('chart-weekly'));
+    charts['chart-weekly'] = chart;
+    
+    chart.setOption({
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['周GMV', '周流量', '周时长'], textStyle: { color: '#aaa' } },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: weekLabels.map(w => '第' + w + '周'), axisLabel: { color: '#888' } },
+        yAxis: [
+            { type: 'value', name: 'GMV/流量', axisLabel: { color: '#888' }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } } },
+            { type: 'value', name: '时长(h)', axisLabel: { color: '#888' }, splitLine: { show: false } }
+        ],
+        series: [
+            { name: '周GMV', type: 'bar', data: weekData.map(w => w.gmv), itemStyle: { color: '#f5af19' } },
+            { name: '周流量', type: 'bar', data: weekData.map(w => w.traffic), itemStyle: { color: '#667eea' } },
+            { name: '周时长', type: 'line', yAxisIndex: 1, data: weekData.map(w => w.duration), smooth: true, itemStyle: { color: '#4ade80' } },
+        ]
+    });
+}
+
+function renderAnchor() {
+    const anchors = getAccountAnchors(currentAccount);
+    if (!anchors.length) return;
+    
+    // Aggregate by anchor
+    const anchorStats = {};
+    anchors.forEach(a => {
+        if (!anchorStats[a.anchor]) {
+            anchorStats[a.anchor] = { anchor: a.anchor, duration: 0, gmv: 0, cost: 0, roi: 0, roiCount: 0, ctr: 0, ctrCount: 0, cvr: 0, cvrCount: 0, days: 0 };
+        }
+        const s = anchorStats[a.anchor];
+        s.duration += a.metrics['时长'] || 0;
+        s.gmv += a.metrics['整体成交金额(元)'] || 0;
+        s.cost += a.metrics['消耗'] || 0;
+        if (a.metrics['整体ROI'] !== null && !isNaN(a.metrics['整体ROI'])) { s.roi += a.metrics['整体ROI']; s.roiCount++; }
+        if (a.metrics['曝光点击率'] !== null && !isNaN(a.metrics['曝光点击率'])) { s.ctr += a.metrics['曝光点击率']; s.ctrCount++; }
+        if (a.metrics['点击成交率'] !== null && !isNaN(a.metrics['点击成交率'])) { s.cvr += a.metrics['点击成交率']; s.cvrCount++; }
+        s.days++;
+    });
+    
+    // Calculate composite score
+    const stats = Object.values(anchorStats).map(s => ({
+        ...s,
+        avgRoi: s.roiCount > 0 ? s.roi / s.roiCount : 0,
+        avgCtr: s.ctrCount > 0 ? s.ctr / s.ctrCount : 0,
+        avgCvr: s.cvrCount > 0 ? s.cvr / s.cvrCount : 0,
+        hourlyGmv: s.duration > 0 ? s.gmv / s.duration : 0,
+    }));
+    
+    // Composite score: normalize and weight (GMV 40%, ROI 30%, hourly GMV 20%, CTR 10%)
+    const maxGmv = Math.max(...stats.map(s => s.gmv), 1);
+    const maxRoi = Math.max(...stats.map(s => s.avgRoi), 1);
+    const maxHourly = Math.max(...stats.map(s => s.hourlyGmv), 1);
+    const maxCtr = Math.max(...stats.map(s => s.avgCtr), 1);
+    
+    stats.forEach(s => {
+        s.score = (s.gmv / maxGmv * 0.4 + s.avgRoi / maxRoi * 0.3 + s.hourlyGmv / maxHourly * 0.2 + s.avgCtr / maxCtr * 0.1) * 100;
+    });
+    
+    stats.sort((a, b) => b.score - a.score);
+    
+    // Render table
+    document.getElementById('anchorTableBody').innerHTML = stats.map((s, i) => `
+        <tr>
+            <td><span class="rank-badge ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</span></td>
+            <td style="font-weight:600;">${s.anchor}</td>
+            <td>${s.duration.toFixed(1)}</td>
+            <td>${formatMoney(s.gmv)}</td>
+            <td>${formatMoney(s.cost)}</td>
+            <td style="color: ${s.avgRoi >= 2 ? '#4ade80' : s.avgRoi >= 1 ? '#fbbf24' : '#f87171'}">${s.avgRoi.toFixed(2)}</td>
+            <td>${formatMoney(s.hourlyGmv)}</td>
+            <td>${formatPercent(s.avgCtr)}</td>
+            <td>${formatPercent(s.avgCvr)}</td>
+        </tr>
+    `).join('');
+    
+    // Anchor GMV chart
+    if (charts['chart-anchor-gmv']) charts['chart-anchor-gmv'].dispose();
+    const chart1 = echarts.init(document.getElementById('chart-anchor-gmv'));
+    charts['chart-anchor-gmv'] = chart1;
+    chart1.setOption({
+        tooltip: { trigger: 'axis' },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: stats.map(s => s.anchor), axisLabel: { color: '#888', rotate: 30 } },
+        yAxis: { type: 'value', axisLabel: { color: '#888' }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } } },
+        series: [{ type: 'bar', data: stats.map(s => s.gmv), itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#f5af19' }, { offset: 1, color: '#f12711' }]) } }]
+    });
+    
+    // Anchor ROI chart
+    if (charts['chart-anchor-roi']) charts['chart-anchor-roi'].dispose();
+    const chart2 = echarts.init(document.getElementById('chart-anchor-roi'));
+    charts['chart-anchor-roi'] = chart2;
+    chart2.setOption({
+        tooltip: { trigger: 'axis' },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: stats.map(s => s.anchor), axisLabel: { color: '#888', rotate: 30 } },
+        yAxis: { type: 'value', axisLabel: { color: '#888' }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } } },
+        series: [{ type: 'bar', data: stats.map(s => s.avgRoi), itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#43e97b' }, { offset: 1, color: '#38f9d7' }]) } }]
+    });
+}
+
+function getWeekNumber(date) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function adjustColor(color, amount) {
+    const hex = color.replace('#', '');
+    const r = Math.min(255, parseInt(hex.substr(0, 2), 16) + amount);
+    const g = Math.min(255, parseInt(hex.substr(2, 2), 16) + amount);
+    const b = Math.min(255, parseInt(hex.substr(4, 2), 16) + amount);
+    return `rgb(${r}, ${g}, ${b})`;
+}
+
+function captureScreen() {
+    alert('截图功能：请使用浏览器自带截图功能（Ctrl+Shift+A 或 Win+Shift+S）');
+}
+
+window.addEventListener('resize', () => {
+    Object.values(charts).forEach(c => c && c.resize());
+});
+</script>
+</body>
+</html>
