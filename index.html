@@ -386,18 +386,18 @@ function switchTab(tab) {
 }
 
 function formatNumber(n, decimals = 0) {
-    if (n === null || n === undefined || isNaN(n)) return '-';
+    if (n === null || n === undefined || n === '' || isNaN(n)) return '-';
     if (n >= 10000) return (n / 10000).toFixed(1) + 'w';
     return n.toLocaleString('zh-CN', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
 function formatPercent(n) {
-    if (n === null || n === undefined || isNaN(n)) return '-';
+    if (n === null || n === undefined || n === '' || isNaN(n)) return '-';
     return (n * 100).toFixed(2) + '%';
 }
 
 function formatMoney(n) {
-    if (n === null || n === undefined || isNaN(n)) return '-';
+    if (n === null || n === undefined || n === '' || isNaN(n)) return '-';
     return '¥' + formatNumber(n, 2);
 }
 
@@ -615,30 +615,34 @@ function renderYesterdayAnchors(date) {
         return;
     }
     
-    // 按账号分组排序
-    dayAnchors.sort((a, b) => {
-        if (a.account !== b.account) return a.account.localeCompare(b.account);
-        return (b.metrics['整体成交金额(元)'] || 0) - (a.metrics['整体成交金额(元)'] || 0);
-    });
+    // 辅助函数：把值转成数字
+    const toNum = (v) => {
+        if (v === null || v === undefined || v === '') return 0;
+        const n = parseFloat(v);
+        return isNaN(n) ? 0 : n;
+    };
+    
+    // 按GMV排序
+    dayAnchors.sort((a, b) => toNum(b.metrics['整体成交金额(元)']) - toNum(a.metrics['整体成交金额(元)']));
     
     document.getElementById('yesterdayAnchorBody').innerHTML = dayAnchors.map(a => {
         const m = a.metrics;
-        const gmv = m['整体成交金额(元)'] || 0;
-        const cost = m['消耗'] || 0;
-        const roi = m['整体ROI'];
-        const duration = m['时长'] || 0;
+        const gmv = toNum(m['整体成交金额(元)']);
+        const cost = toNum(m['消耗']);
+        const roi = toNum(m['整体ROI']);
+        const duration = toNum(m['时长']);
         const hourlyGmv = duration > 0 ? gmv / duration : 0;
         const roiColor = roi >= 2 ? '#4ade80' : roi >= 1 ? '#fbbf24' : '#f87171';
         return `
             <tr>
                 <td style="font-weight: 600;">${a.anchor}</td>
-                <td>${duration ? duration.toFixed(1) : '-'}</td>
-                <td>${formatMoney(gmv)}</td>
-                <td>${formatMoney(cost)}</td>
-                <td style="color: ${roi ? roiColor : '#888'}; font-weight: 600;">${roi ? roi.toFixed(2) : '-'}</td>
-                <td>${formatMoney(hourlyGmv)}</td>
-                <td>${formatPercent(m['曝光点击率'])}</td>
-                <td>${formatPercent(m['点击成交率'])}</td>
+                <td>${duration > 0 ? duration.toFixed(1) : '-'}</td>
+                <td>${gmv > 0 ? formatMoney(gmv) : '-'}</td>
+                <td>${cost > 0 ? formatMoney(cost) : '-'}</td>
+                <td style="color: ${roi > 0 ? roiColor : '#888'}; font-weight: 600;">${roi > 0 ? roi.toFixed(2) : '-'}</td>
+                <td>${hourlyGmv > 0 ? formatMoney(hourlyGmv) : '-'}</td>
+                <td>${formatPercent(toNum(m['曝光点击率']))}</td>
+                <td>${formatPercent(toNum(m['点击成交率']))}</td>
                 <td style="color: #888; font-size: 12px;">${m['场控'] || '-'}</td>
             </tr>
         `;
@@ -715,6 +719,13 @@ function renderAnchor() {
     const anchors = getAccountAnchors(currentAccount);
     if (!anchors.length) return;
     
+    // 辅助函数：把值转成数字，空字符串或无效值返回0
+    const toNum = (v) => {
+        if (v === null || v === undefined || v === '') return 0;
+        const n = parseFloat(v);
+        return isNaN(n) ? 0 : n;
+    };
+    
     // Aggregate by anchor
     const anchorStats = {};
     anchors.forEach(a => {
@@ -722,12 +733,15 @@ function renderAnchor() {
             anchorStats[a.anchor] = { anchor: a.anchor, duration: 0, gmv: 0, cost: 0, roi: 0, roiCount: 0, ctr: 0, ctrCount: 0, cvr: 0, cvrCount: 0, days: 0 };
         }
         const s = anchorStats[a.anchor];
-        s.duration += a.metrics['时长'] || 0;
-        s.gmv += a.metrics['整体成交金额(元)'] || 0;
-        s.cost += a.metrics['消耗'] || 0;
-        if (a.metrics['整体ROI'] !== null && !isNaN(a.metrics['整体ROI'])) { s.roi += a.metrics['整体ROI']; s.roiCount++; }
-        if (a.metrics['曝光点击率'] !== null && !isNaN(a.metrics['曝光点击率'])) { s.ctr += a.metrics['曝光点击率']; s.ctrCount++; }
-        if (a.metrics['点击成交率'] !== null && !isNaN(a.metrics['点击成交率'])) { s.cvr += a.metrics['点击成交率']; s.cvrCount++; }
+        s.duration += toNum(a.metrics['时长']);
+        s.gmv += toNum(a.metrics['整体成交金额(元)']);
+        s.cost += toNum(a.metrics['消耗']);
+        const roi = toNum(a.metrics['整体ROI']);
+        if (roi > 0) { s.roi += roi; s.roiCount++; }
+        const ctr = toNum(a.metrics['曝光点击率']);
+        if (ctr > 0) { s.ctr += ctr; s.ctrCount++; }
+        const cvr = toNum(a.metrics['点击成交率']);
+        if (cvr > 0) { s.cvr += cvr; s.cvrCount++; }
         s.days++;
     });
     
