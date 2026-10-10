@@ -382,28 +382,35 @@ function renderAll() {
 
 function renderDaily() {
     const data = getAccountData(currentAccount);
+    const anchors = getAccountAnchors(currentAccount);
     if (!data.length) return;
     
     // 默认显示前一天的数据（数据至少2天时取倒数第2天，否则取最后1天）
     const latest = data.length >= 2 ? data[data.length - 2] : data[data.length - 1];
     const m = latest.metrics;
     
-    // KPI Cards
+    // 从主播数据汇总当天消耗
+    const dayAnchors = anchors.filter(a => a.date === latest.date);
+    const totalCost = dayAnchors.reduce((sum, a) => sum + (a.metrics['消耗'] || 0), 0);
+    const gmv = m['直播期间累计成交金额'] || 0;
+    const roi = totalCost > 0 ? gmv / totalCost : null;
+    
+    // KPI Cards - GMV、消耗、投产放前面
     const kpis = [
-        { label: '直播时长', value: m['直播时长(h)'] ? m['直播时长(h)'] + 'h' : '-', sub: '小时' },
-        { label: '累计成交金额', value: formatMoney(m['直播期间累计成交金额']), sub: 'GMV' },
-        { label: '时均GMV', value: formatMoney(m['时均GMV']), sub: '每小时产出' },
-        { label: '进入直播间人数', value: formatNumber(m['进入直播间人数']), sub: 'UV' },
-        { label: '直播间曝光人数', value: formatNumber(m['直播间曝光人数']), sub: '曝光量' },
-        { label: '曝光-进入转化率', value: formatPercent(m['曝光-进入转化率']), sub: '流量转化' },
-        { label: '客单价', value: formatMoney(m['客单价']), sub: '平均订单金额' },
-        { label: '互动率', value: formatPercent(m['互动率']), sub: '用户互动' },
+        { label: '📅 数据日期', value: latest.date, sub: '前一天数据' },
+        { label: '💰 GMV成交金额', value: formatMoney(gmv), sub: '累计成交' },
+        { label: '📊 广告消耗', value: formatMoney(totalCost), sub: dayAnchors.length + '位主播' },
+        { label: '⚡ 投产比ROI', value: roi ? roi.toFixed(2) : '-', sub: roi >= 2 ? '优秀' : roi >= 1 ? '达标' : '待提升', color: roi >= 2 ? 'good' : roi >= 1 ? 'warn' : 'bad' },
+        { label: '⏱️ 直播时长', value: m['直播时长(h)'] ? m['直播时长(h)'] + 'h' : '-', sub: '小时' },
+        { label: '👥 进入人数', value: formatNumber(m['进入直播间人数']), sub: 'UV' },
+        { label: '👁️ 曝光人数', value: formatNumber(m['直播间曝光人数']), sub: '曝光量' },
+        { label: '🎯 曝光-进入转化率', value: formatPercent(m['曝光-进入转化率']), sub: '流量转化' },
     ];
     
     document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
         <div class="kpi-card">
             <div class="kpi-label">${k.label}</div>
-            <div class="kpi-value">${k.value}</div>
+            <div class="kpi-value ${k.color || ''}">${k.value}</div>
             <div class="kpi-sub">${k.sub}</div>
         </div>
     `).join('');
