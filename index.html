@@ -266,6 +266,40 @@ body {
                 <div class="chart-container" id="chart-multi"></div>
             </div>
         </div>
+
+        <!-- 主播排班 -->
+        <div class="chart-grid">
+            <div class="chart-card full">
+                <div class="chart-title">📋 主播排班（今日 & 明日）</div>
+                <div id="scheduleContainer" style="display: flex; gap: 30px; flex-wrap: wrap;"></div>
+            </div>
+        </div>
+
+        <!-- 主播昨日数据 -->
+        <div class="chart-grid">
+            <div class="chart-card full">
+                <div class="chart-title">👤 主播昨日数据</div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="yesterdayAnchorTable">
+                        <thead>
+                            <tr>
+                                <th>主播</th>
+                                <th>账号</th>
+                                <th>时长(h)</th>
+                                <th>成交金额</th>
+                                <th>消耗</th>
+                                <th>ROI</th>
+                                <th>时均GMV</th>
+                                <th>曝光点击率</th>
+                                <th>点击成交率</th>
+                                <th>场控</th>
+                            </tr>
+                        </thead>
+                        <tbody id="yesterdayAnchorBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Stage Section -->
@@ -429,6 +463,12 @@ function renderDaily() {
     
     // Funnel
     renderFunnel(m);
+    
+    // 主播排班
+    renderSchedule();
+    
+    // 主播昨日数据
+    renderYesterdayAnchors(latest.date);
 }
 
 function renderLineChart(id, data, metrics, yName, color) {
@@ -512,6 +552,92 @@ function renderFunnel(m) {
             </span>
         </div>
     `).join('');
+}
+
+function renderSchedule() {
+    const schedule = rawData.schedule || [];
+    if (!schedule.length) {
+        document.getElementById('scheduleContainer').innerHTML = '<p style="color:#888;">暂无排班数据</p>';
+        return;
+    }
+    
+    // 取今天和明天的排班（数据中最新的两天）
+    const sorted = [...schedule].sort((a, b) => a.date.localeCompare(b.date));
+    const today = sorted[sorted.length - 2] || sorted[sorted.length - 1];
+    const tomorrow = sorted[sorted.length - 1];
+    
+    const renderDay = (dayData, label) => {
+        if (!dayData) return '';
+        const weekday = ['日','一','二','三','四','五','六'][new Date(dayData.date).getDay()];
+        return `
+            <div style="flex: 1; min-width: 300px;">
+                <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #f5af19;">
+                    ${label} · ${dayData.date} 周${weekday}
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">班次</th>
+                            <th style="width: 35%;">官方号</th>
+                            <th style="width: 35%;">优选号</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${dayData.shifts.map(s => `
+                            <tr>
+                                <td style="color: #aaa; font-size: 12px;">${s.time}</td>
+                                <td style="font-weight: 500;">${s.official || '<span style="color:#555;">休息</span>'}</td>
+                                <td style="font-weight: 500;">${s.youxuan || '<span style="color:#555;">休息</span>'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    };
+    
+    document.getElementById('scheduleContainer').innerHTML = renderDay(today, '今日') + renderDay(tomorrow, '明日');
+}
+
+function renderYesterdayAnchors(date) {
+    const anchors = rawData.anchor_data || [];
+    // 取指定日期的主播数据，两个账号都显示
+    const dayAnchors = anchors.filter(a => a.date === date);
+    
+    if (!dayAnchors.length) {
+        document.getElementById('yesterdayAnchorBody').innerHTML = '<tr><td colspan="10" style="text-align:center;color:#888;padding:20px;">暂无昨日主播数据</td></tr>';
+        return;
+    }
+    
+    // 按账号分组排序
+    dayAnchors.sort((a, b) => {
+        if (a.account !== b.account) return a.account.localeCompare(b.account);
+        return (b.metrics['整体成交金额(元)'] || 0) - (a.metrics['整体成交金额(元)'] || 0);
+    });
+    
+    document.getElementById('yesterdayAnchorBody').innerHTML = dayAnchors.map(a => {
+        const m = a.metrics;
+        const gmv = m['整体成交金额(元)'] || 0;
+        const cost = m['消耗'] || 0;
+        const roi = m['整体ROI'];
+        const duration = m['时长'] || 0;
+        const hourlyGmv = duration > 0 ? gmv / duration : 0;
+        const roiColor = roi >= 2 ? '#4ade80' : roi >= 1 ? '#fbbf24' : '#f87171';
+        return `
+            <tr>
+                <td style="font-weight: 600;">${a.anchor}</td>
+                <td><span style="padding: 2px 8px; border-radius: 4px; background: ${a.account === '桂格官方' ? 'rgba(102,126,234,0.2)' : 'rgba(245,175,25,0.2)'}; color: ${a.account === '桂格官方' ? '#667eea' : '#f5af19'}; font-size: 12px;">${a.account}</span></td>
+                <td>${duration ? duration.toFixed(1) : '-'}</td>
+                <td>${formatMoney(gmv)}</td>
+                <td>${formatMoney(cost)}</td>
+                <td style="color: ${roi ? roiColor : '#888'}; font-weight: 600;">${roi ? roi.toFixed(2) : '-'}</td>
+                <td>${formatMoney(hourlyGmv)}</td>
+                <td>${formatPercent(m['曝光点击率'])}</td>
+                <td>${formatPercent(m['点击成交率'])}</td>
+                <td style="color: #888; font-size: 12px;">${m['场控'] || '-'}</td>
+            </tr>
+        `;
+    }).join('');
 }
 
 function renderStage() {

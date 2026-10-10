@@ -1,5 +1,5 @@
 {
-  "update_time": "2026-10-10 14:41:08",
+  "update_time": "2026-10-10 14:56:18",
   "accounts": [
     "桂格优选",
     "桂格官方"
@@ -3881,6 +3881,808 @@
       }
     }
   ],
+  "schedule": [
+    {
+      "date": "2026-10-01",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "",
+          "youxuan": ""
+        }
+      ]
+    },
+    {
+      "date": "2026-10-02",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "周冰清",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "樊斐",
+          "youxuan": "丁文娜"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "琦琦",
+          "youxuan": "袁秀琳"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-03",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "周冰清",
+          "youxuan": "韦依"
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "琦琦",
+          "youxuan": "丁文娜"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "樊斐",
+          "youxuan": "袁秀琳"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-04",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "琦琦",
+          "youxuan": "丁文娜"
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "朱吴琪",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "樊斐",
+          "youxuan": "韦依"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-05",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "朱吴琪",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "樊斐",
+          "youxuan": ""
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "琦琦",
+          "youxuan": "袁秀琳"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-06",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "樊斐",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "琦琦",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "朱吴琪",
+          "youxuan": "韦依"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-07",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "琦琦",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "朱吴琪",
+          "youxuan": ""
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "周冰清",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-08",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "朱吴琪",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "周冰清",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "樊斐",
+          "youxuan": "丁文娜"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "琦琦",
+          "youxuan": "韦依"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-09",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "樊斐",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "琦琦",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "周冰清",
+          "youxuan": "丁文娜"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "朱吴琪",
+          "youxuan": "袁秀琳"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-10",
+      "shifts": [
+        {
+          "time": "8:00-12:30",
+          "official": "周冰清",
+          "youxuan": "丁文娜"
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "16:00-20:30",
+          "official": "陈梦婷",
+          "youxuan": "韦依"
+        },
+        {
+          "time": "20:30-01:00",
+          "official": "樊斐",
+          "youxuan": "袁秀琳"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-11",
+      "shifts": [
+        {
+          "time": "7:00-11:30",
+          "official": "朱吴琪",
+          "youxuan": "丁文娜"
+        },
+        {
+          "time": "11:30-16:00",
+          "official": "樊斐",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "16:00-20:30",
+          "official": "周冰清",
+          "youxuan": ""
+        },
+        {
+          "time": "20:30-01:00",
+          "official": "陈梦婷",
+          "youxuan": ""
+        }
+      ]
+    },
+    {
+      "date": "2026-10-12",
+      "shifts": [
+        {
+          "time": "7:00-11:30",
+          "official": "樊斐",
+          "youxuan": ""
+        },
+        {
+          "time": "11:30-16:00",
+          "official": "周冰清",
+          "youxuan": ""
+        },
+        {
+          "time": "16:00-20:30",
+          "official": "陈梦婷",
+          "youxuan": "丁文娜"
+        },
+        {
+          "time": "20:30-01:00",
+          "official": "朱吴琪",
+          "youxuan": "袁秀琳"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-13",
+      "shifts": [
+        {
+          "time": "7:00-11:30",
+          "official": "周冰清",
+          "youxuan": ""
+        },
+        {
+          "time": "11:30-16:00",
+          "official": "琦琦",
+          "youxuan": ""
+        },
+        {
+          "time": "16:00-20:30",
+          "official": "朱吴琪",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "20:30-01:00",
+          "official": "樊斐",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-14",
+      "shifts": [
+        {
+          "time": "8:00-12:30",
+          "official": "琦琦",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "16:00-20:30",
+          "official": "朱吴琪",
+          "youxuan": "韦依"
+        },
+        {
+          "time": "20:30-01:00",
+          "official": "周冰清",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-15",
+      "shifts": [
+        {
+          "time": "8:00-12:30",
+          "official": "朱吴琪",
+          "youxuan": "韦依"
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "16:00-20:30",
+          "official": "周冰清",
+          "youxuan": "丁文娜"
+        },
+        {
+          "time": "20:30-01:00",
+          "official": "琦琦",
+          "youxuan": "袁秀琳"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-16",
+      "shifts": [
+        {
+          "time": "7:00-11:30",
+          "official": "周冰清",
+          "youxuan": ""
+        },
+        {
+          "time": "11:30-16:00",
+          "official": "琦琦",
+          "youxuan": ""
+        },
+        {
+          "time": "16:00-20:30",
+          "official": "朱吴琪",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "20:30-01:00",
+          "official": "樊斐",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-17",
+      "shifts": [
+        {
+          "time": "8:00-12:30",
+          "official": "朱吴琪",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "16:00-20:30",
+          "official": "樊斐",
+          "youxuan": "丁文娜"
+        },
+        {
+          "time": "20:30-01:00",
+          "official": "周冰清",
+          "youxuan": "袁秀琳"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-18",
+      "shifts": [
+        {
+          "time": "7:00-11:30",
+          "official": "朱吴琪",
+          "youxuan": ""
+        },
+        {
+          "time": "11:30-16:00",
+          "official": "周冰清",
+          "youxuan": ""
+        },
+        {
+          "time": "16:00-20:30",
+          "official": "樊斐",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "20:30-01:00",
+          "official": "琦琦",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-19",
+      "shifts": [
+        {
+          "time": "7:00-11:30",
+          "official": "周冰清",
+          "youxuan": ""
+        },
+        {
+          "time": "11:30-16:00",
+          "official": "樊斐",
+          "youxuan": ""
+        },
+        {
+          "time": "16:00-20:30",
+          "official": "琦琦",
+          "youxuan": ""
+        },
+        {
+          "time": "20:30-01:00",
+          "official": "朱吴琪",
+          "youxuan": ""
+        }
+      ]
+    },
+    {
+      "date": "2026-10-20",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-21",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-22",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-23",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-24",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-25",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-26",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-27",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-28",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-29",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-30",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-10-31",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "",
+          "youxuan": "丁文娜"
+        }
+      ]
+    },
+    {
+      "date": "2026-11-01",
+      "shifts": [
+        {
+          "time": "6:00-10:30",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "10:30-15:00",
+          "official": "",
+          "youxuan": ""
+        },
+        {
+          "time": "15:00-19:30",
+          "official": "",
+          "youxuan": "袁秀琳"
+        },
+        {
+          "time": "19:30-00:00",
+          "official": "",
+          "youxuan": "丁文娜"
+        }
+      ]
+    }
+  ],
   "daily_metrics": [
     {
       "category": "基础数据",
@@ -3895,30 +4697,6 @@
       "name": "直播间曝光人数"
     },
     {
-      "category": "流量数据",
-      "name": "观看UV"
-    },
-    {
-      "category": "流量数据",
-      "name": "曝光-进入转化率"
-    },
-    {
-      "category": "流量数据",
-      "name": "总UV价值"
-    },
-    {
-      "category": "流量数据",
-      "name": "PCU在线峰值"
-    },
-    {
-      "category": "流量数据",
-      "name": "ACU在线均值"
-    },
-    {
-      "category": "流量数据",
-      "name": "人均观看（秒）"
-    },
-    {
       "category": "成交数据",
       "name": "直播期间累计成交金额"
     },
@@ -3927,68 +4705,12 @@
       "name": "时均GMV"
     },
     {
-      "category": "成交数据",
-      "name": "退款金额"
-    },
-    {
-      "category": "成交数据",
-      "name": "订单数"
-    },
-    {
-      "category": "成交数据",
-      "name": "成交件数"
-    },
-    {
-      "category": "成交数据",
-      "name": "成交人数"
-    },
-    {
-      "category": "成交数据",
-      "name": "客单价"
-    },
-    {
-      "category": "成交数据",
-      "name": "点击-成交转化率"
-    },
-    {
-      "category": "成交数据",
-      "name": "进入-成交转化率"
-    },
-    {
-      "category": "成交数据",
-      "name": "千次观看成交金额"
-    },
-    {
-      "category": "成交数据",
-      "name": "粉丝成交GMV"
-    },
-    {
-      "category": "成交数据",
-      "name": "粉丝成交金额占比"
-    },
-    {
       "category": "互动数据",
       "name": "评论数"
     },
     {
       "category": "互动数据",
-      "name": "点赞数"
-    },
-    {
-      "category": "互动数据",
       "name": "增粉数"
-    },
-    {
-      "category": "互动数据",
-      "name": "加团人数"
-    },
-    {
-      "category": "互动数据",
-      "name": "转粉率"
-    },
-    {
-      "category": "互动数据",
-      "name": "互动率"
     }
   ]
 }
