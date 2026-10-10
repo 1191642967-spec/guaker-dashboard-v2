@@ -467,8 +467,11 @@ function renderDaily() {
     // 主播排班
     renderSchedule();
     
-    // 主播昨日数据
-    renderYesterdayAnchors(latest.date);
+    // 主播昨日数据 - 根据实际当前日期取昨天
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    renderYesterdayAnchors(yesterdayStr);
     
     // 主播综合排名和对比图
     renderAnchor();
@@ -564,10 +567,20 @@ function renderSchedule() {
         return;
     }
     
-    // 取今天和明天的排班（数据中最新的两天）
+    // 根据实际当前日期取今日和明日
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    
+    const today = schedule.find(s => s.date === todayStr);
+    const tomorrowData = schedule.find(s => s.date === tomorrowStr);
+    
+    // 如果找不到今日数据，取数据中最新的有排班的一天
     const sorted = [...schedule].sort((a, b) => a.date.localeCompare(b.date));
-    const today = sorted[sorted.length - 2] || sorted[sorted.length - 1];
-    const tomorrow = sorted[sorted.length - 1];
+    const displayToday = today || sorted[sorted.length - 2] || sorted[sorted.length - 1];
+    const displayTomorrow = tomorrowData || sorted[sorted.length - 1];
     
     const renderDay = (dayData, label) => {
         if (!dayData) return '';
@@ -599,7 +612,7 @@ function renderSchedule() {
         `;
     };
     
-    document.getElementById('scheduleContainer').innerHTML = renderDay(today, '今日') + renderDay(tomorrow, '明日');
+    document.getElementById('scheduleContainer').innerHTML = renderDay(displayToday, '今日') + renderDay(displayTomorrow, '明日');
 }
 
 function renderYesterdayAnchors(date) {
