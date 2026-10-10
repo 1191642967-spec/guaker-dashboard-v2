@@ -384,7 +384,8 @@ function renderDaily() {
     const data = getAccountData(currentAccount);
     if (!data.length) return;
     
-    const latest = data[data.length - 1];
+    // 默认显示前一天的数据（数据至少2天时取倒数第2天，否则取最后1天）
+    const latest = data.length >= 2 ? data[data.length - 2] : data[data.length - 1];
     const m = latest.metrics;
     
     // KPI Cards
