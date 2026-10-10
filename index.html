@@ -284,7 +284,6 @@ body {
                         <thead>
                             <tr>
                                 <th>主播</th>
-                                <th>账号</th>
                                 <th>时长(h)</th>
                                 <th>成交金额</th>
                                 <th>消耗</th>
@@ -601,11 +600,11 @@ function renderSchedule() {
 
 function renderYesterdayAnchors(date) {
     const anchors = rawData.anchor_data || [];
-    // 取指定日期的主播数据，两个账号都显示
-    const dayAnchors = anchors.filter(a => a.date === date);
+    // 只显示当前选中账号的主播数据
+    const dayAnchors = anchors.filter(a => a.date === date && a.account === currentAccount);
     
     if (!dayAnchors.length) {
-        document.getElementById('yesterdayAnchorBody').innerHTML = '<tr><td colspan="10" style="text-align:center;color:#888;padding:20px;">暂无昨日主播数据</td></tr>';
+        document.getElementById('yesterdayAnchorBody').innerHTML = '<tr><td colspan="9" style="text-align:center;color:#888;padding:20px;">暂无昨日主播数据</td></tr>';
         return;
     }
     
@@ -626,7 +625,6 @@ function renderYesterdayAnchors(date) {
         return `
             <tr>
                 <td style="font-weight: 600;">${a.anchor}</td>
-                <td><span style="padding: 2px 8px; border-radius: 4px; background: ${a.account === '桂格官方' ? 'rgba(102,126,234,0.2)' : 'rgba(245,175,25,0.2)'}; color: ${a.account === '桂格官方' ? '#667eea' : '#f5af19'}; font-size: 12px;">${a.account}</span></td>
                 <td>${duration ? duration.toFixed(1) : '-'}</td>
                 <td>${formatMoney(gmv)}</td>
                 <td>${formatMoney(cost)}</td>
