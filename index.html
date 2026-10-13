@@ -135,9 +135,10 @@ body {
 .funnel-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 8px;
     padding: 20px 0;
+    padding-left: 30px;
 }
 .funnel-step {
     display: flex;
@@ -153,7 +154,7 @@ body {
 .funnel-step:hover { transform: scale(1.02); }
 .funnel-label { font-size: 14px; }
 .funnel-value { font-size: 18px; }
-.funnel-rate { font-size: 12px; opacity: 0.8; margin-left: 10px; }
+.funnel-rate { font-size: 12px; opacity: 0.8; margin-left: 15px; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 4px; }
 
 /* Table */
 .data-table {
