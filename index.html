@@ -603,6 +603,17 @@ function renderDaily() {
         { label: '💬 评论数', value: formatNumber(m['评论数']), sub: '互动评论' },
     ];
     
+    // 官方号增加乘方推商品数据
+    if (currentAccount === '桂格官方') {
+        const chengfangGmv = m['乘方推商品GMV'] || 0;
+        const chengfangCost = m['乘方推商品消耗'] || 0;
+        const chengfangRoi = chengfangCost > 0 ? chengfangGmv / chengfangCost : 0;
+        kpis.push(
+            { label: '🛒 乘方推商品GMV', value: formatMoney(chengfangGmv), sub: '商品推广成交' },
+            { label: '📊 乘方推商品消耗', value: formatMoney(chengfangCost), sub: '商品推广投放' },
+        );
+    }
+    
     document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
         <div class="kpi-card">
             <div class="kpi-label">${k.label}</div>
