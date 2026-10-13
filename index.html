@@ -244,13 +244,9 @@ body {
         <div class="kpi-grid" id="kpiGrid"></div>
         
         <div class="chart-grid">
-            <div class="chart-card">
+            <div class="chart-card full">
                 <div class="chart-title">🎯 转化漏斗</div>
                 <div class="funnel-container" id="funnel"></div>
-            </div>
-            <div class="chart-card">
-                <div class="chart-title">💰 投产比趋势</div>
-                <div class="chart-container" id="chart-roi"></div>
             </div>
             <div class="chart-card full">
                 <div class="chart-title">📊 核心指标趋势</div>
@@ -440,9 +436,6 @@ function renderDaily() {
             <div class="kpi-sub">${k.sub}</div>
         </div>
     `).join('');
-    
-    // ROI Chart
-    renderLineChart('chart-roi', data, ['总UV价值', '千次观看成交金额'], '数值', '#4ade80');
     
     // Multi Chart
     renderMultiAxisChart('chart-multi', data);
