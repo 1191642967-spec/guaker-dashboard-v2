@@ -138,6 +138,33 @@ body {
     gap: 20px;
     padding: 20px 30px;
 }
+.conversion-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 20px 30px;
+}
+.conversion-left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.funnel-data-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+}
+.funnel-data-item .label { font-size: 14px; }
+.funnel-data-item .value { font-size: 18px; }
+.conversion-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
 .conversion-item {
     display: flex;
     flex-direction: column;
@@ -387,7 +414,10 @@ body {
         <div class="chart-grid">
             <div class="chart-card full">
                 <div class="chart-title">🎯 转化率目标</div>
-                <div class="funnel-container" id="funnel"></div>
+                <div class="conversion-wrapper">
+                    <div class="conversion-left" id="funnelData"></div>
+                    <div class="conversion-right" id="funnel"></div>
+                </div>
             </div>
             <div class="chart-card full">
                 <div class="chart-title">📊 核心指标趋势</div>
@@ -652,12 +682,29 @@ function renderFunnel(m) {
     const enter = m['进入直播间人数'] || 0;
     const orders = m['订单数'] || 0;
     const gmv = m['直播期间累计成交金额'] || 0;
+    const buyers = m['成交人数'] || 0;
     
-    // 计算各环节转化率
+    // 左边：转化漏斗数据
+    const funnelSteps = [
+        { label: '直播间曝光', value: formatNumber(exposure), color: 'linear-gradient(90deg, #667eea, #764ba2)' },
+        { label: '进入直播间', value: formatNumber(enter), color: 'linear-gradient(90deg, #f093fb, #f5576c)' },
+        { label: '成交人数', value: formatNumber(buyers), color: 'linear-gradient(90deg, #4facfe, #00f2fe)' },
+        { label: '订单数', value: formatNumber(orders), color: 'linear-gradient(90deg, #43e97b, #38f9d7)' },
+        { label: 'GMV', value: '¥' + formatNumber(gmv), color: 'linear-gradient(90deg, #fa709a, #fee140)' },
+    ];
+    
+    document.getElementById('funnelData').innerHTML = funnelSteps.map((step, i) => `
+        <div class="funnel-data-item" style="background: ${step.color}; width: ${100 - i * 8}%;">
+            <span class="label">${step.label}</span>
+            <span class="value">${step.value}</span>
+        </div>
+    `).join('');
+    
+    // 右边：转化率目标
     const rate1 = exposure > 0 ? (enter / exposure) * 100 : 0;
     const rate2 = enter > 0 ? (orders / enter) * 100 : 0;
-    const rate3 = 0; // 商品曝光→点击，暂无数据
-    const rate4 = 0; // 点击→成交，暂无数据
+    const rate3 = 0;
+    const rate4 = 0;
     
     const items = [
         { label: '曝光→进入', value: rate1, target: 15 },
