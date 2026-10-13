@@ -135,26 +135,72 @@ body {
 .funnel-container {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 20px 0;
-    padding-left: 30px;
+    gap: 20px;
+    padding: 20px 30px;
 }
-.funnel-step {
+.conversion-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.conversion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.conversion-label {
+    font-size: 15px;
+    color: #ccc;
+    font-weight: 500;
+}
+.conversion-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #4ade80;
+}
+.conversion-target {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 15px 25px;
-    border-radius: 10px;
-    color: white;
-    font-weight: 600;
-    transition: all 0.3s;
-    min-width: 300px;
+    gap: 8px;
+    color: #888;
+    font-size: 14px;
 }
-.funnel-step:hover { transform: scale(1.02); }
-.funnel-label { font-size: 14px; }
-.funnel-value { font-size: 18px; }
-.funnel-rate { font-size: 12px; opacity: 0.8; margin-left: 15px; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 4px; }
+.conversion-target input {
+    width: 60px;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    color: #fff;
+    text-align: center;
+    font-size: 14px;
+}
+.conversion-target input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
+    overflow: hidden;
+}
+.progress-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease;
+}
+.progress-fill.good { background: linear-gradient(90deg, #4ade80, #22c55e); }
+.progress-fill.warn { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+.progress-fill.bad { background: linear-gradient(90deg, #f87171, #ef4444); }
+.conversion-status {
+    font-size: 13px;
+    font-weight: 600;
+}
+.conversion-status.good { color: #4ade80; }
+.conversion-status.warn { color: #fbbf24; }
+.conversion-status.bad { color: #f87171; }
 
 /* Table */
 .data-table {
@@ -246,7 +292,7 @@ body {
         
         <div class="chart-grid">
             <div class="chart-card full">
-                <div class="chart-title">🎯 转化漏斗</div>
+                <div class="chart-title">🎯 转化率目标</div>
                 <div class="funnel-container" id="funnel"></div>
             </div>
             <div class="chart-card full">
@@ -507,34 +553,53 @@ function renderMultiAxisChart(id, data) {
 function renderFunnel(m) {
     const exposure = m['直播间曝光人数'] || 0;
     const enter = m['进入直播间人数'] || 0;
-    const click = m['成交人数'] || 0;
-    const order = m['订单数'] || 0;
+    const orders = m['订单数'] || 0;
     const gmv = m['直播期间累计成交金额'] || 0;
     
-    const steps = [
-        { label: '直播间曝光', value: exposure, color: 'linear-gradient(90deg, #667eea, #764ba2)' },
-        { label: '进入直播间', value: enter, color: 'linear-gradient(90deg, #f093fb, #f5576c)' },
-        { label: '成交人数', value: click, color: 'linear-gradient(90deg, #4facfe, #00f2fe)' },
-        { label: '订单数', value: order, color: 'linear-gradient(90deg, #43e97b, #38f9d7)' },
-        { label: 'GMV', value: '¥' + formatNumber(gmv), color: 'linear-gradient(90deg, #fa709a, #fee140)' },
+    // 计算各环节转化率
+    const rate1 = exposure > 0 ? (enter / exposure) * 100 : 0;
+    const rate2 = enter > 0 ? (orders / enter) * 100 : 0;
+    const rate3 = 0; // 商品曝光→点击，暂无数据
+    const rate4 = 0; // 点击→成交，暂无数据
+    
+    const items = [
+        { label: '曝光→进入', value: rate1, target: 15 },
+        { label: '进入→下单', value: rate2, target: 3 },
+        { label: '商品曝光→点击', value: rate3, target: 30 },
+        { label: '点击→成交', value: rate4, target: 15 },
     ];
     
-    const rates = [];
-    for (let i = 1; i < steps.length; i++) {
-        const prev = typeof steps[i-1].value === 'number' ? steps[i-1].value : 0;
-        const curr = typeof steps[i].value === 'number' ? steps[i].value : 0;
-        rates.push(prev > 0 ? ((curr / prev) * 100).toFixed(1) + '%' : '-');
-    }
-    
-    document.getElementById('funnel').innerHTML = steps.map((step, i) => `
-        <div class="funnel-step" style="background: ${step.color}; width: ${100 - i * 12}%;">
-            <span class="funnel-label">${step.label}</span>
-            <span>
-                <span class="funnel-value">${typeof step.value === 'number' ? formatNumber(step.value) : step.value}</span>
-                ${i > 0 ? `<span class="funnel-rate">转化率 ${rates[i-1]}</span>` : ''}
-            </span>
-        </div>
-    `).join('');
+    document.getElementById('funnel').innerHTML = items.map((item, i) => {
+        const status = item.value >= item.target ? 'good' : item.value >= item.target * 0.7 ? 'warn' : 'bad';
+        const statusText = item.value >= item.target ? '✓ 达标' : item.value > 0 ? '未达标' : '暂无数据';
+        const progress = Math.min(item.value / item.target * 100, 100);
+        return `
+            <div class="conversion-item">
+                <div class="conversion-header">
+                    <span class="conversion-label">${item.label}</span>
+                    <div style="display:flex;align-items:center;gap:20px;">
+                        <span class="conversion-value">${item.value > 0 ? item.value.toFixed(2) + '%' : '-'}</span>
+                        <div class="conversion-target">
+                            目标 <input type="number" value="${item.target}" min="0" max="100" data-index="${i}" onchange="updateTarget(this)"> %
+                        </div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill ${status}" style="width: ${progress}%"></div>
+                </div>
+                <div class="conversion-status ${status}">${statusText}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function updateTarget(input) {
+    // 目标值修改后可以在这里保存，目前只是前端显示
+    const index = parseInt(input.dataset.index);
+    const value = parseFloat(input.value) || 0;
+    // 重新渲染当前卡片
+    const latest = getAccountData(currentAccount).sort((a,b) => b.date.localeCompare(a.date))[0];
+    if (latest) renderFunnel(latest.metrics);
 }
 
 function renderSchedule() {
