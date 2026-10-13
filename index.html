@@ -236,6 +236,99 @@ body {
 .rank-3 { background: linear-gradient(135deg, #cd7f32, #8b4513); color: white; }
 .rank-other { background: rgba(255,255,255,0.1); color: #888; }
 
+/* Monthly Goal */
+.monthly-goal {
+    background: linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.9));
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 20px 25px;
+    margin-bottom: 20px;
+}
+.monthly-goal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+.monthly-goal-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+}
+.monthly-goal-date {
+    font-size: 13px;
+    color: #888;
+}
+.monthly-goal-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+.monthly-goal-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 15px 20px;
+    border-top: 3px solid;
+}
+.monthly-goal-card.gmv { border-top-color: #3b82f6; }
+.monthly-goal-card.cost { border-top-color: #f59e0b; }
+.monthly-goal-card.roi { border-top-color: #10b981; }
+.goal-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.goal-card-label {
+    font-size: 13px;
+    color: #888;
+}
+.goal-card-target {
+    font-size: 12px;
+    color: #666;
+}
+.goal-card-target input {
+    width: 70px;
+    padding: 4px 8px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    color: #fff;
+    text-align: right;
+    font-size: 12px;
+}
+.goal-card-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+}
+.goal-progress {
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+.goal-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+.goal-progress-fill.good { background: linear-gradient(90deg, #10b981, #34d399); }
+.goal-progress-fill.warn { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.goal-progress-fill.bad { background: linear-gradient(90deg, #ef4444, #f87171); }
+.goal-status {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+}
+.goal-status-text { font-weight: 600; }
+.goal-status-text.good { color: #10b981; }
+.goal-status-text.warn { color: #f59e0b; }
+.goal-status-text.bad { color: #ef4444; }
+.goal-status-percent { color: #666; }
+
 /* Section */
 .section { display: none; }
 .section.active { display: block; }
@@ -288,6 +381,7 @@ body {
 
     <!-- Daily Section -->
     <div class="section active" id="section-daily">
+        <div class="monthly-goal" id="monthlyGoal"></div>
         <div class="kpi-grid" id="kpiGrid"></div>
         
         <div class="chart-grid">
@@ -441,6 +535,9 @@ function renderDaily() {
     const data = getAccountData(currentAccount);
     const anchors = getAccountAnchors(currentAccount);
     if (!data.length) return;
+    
+    // 本月运营目标
+    renderMonthlyGoal(data);
     
     // 根据实际当前日期取昨天的数据，找不到则取数据里最新的一天
     const yesterday = new Date();
@@ -600,6 +697,101 @@ function updateTarget(input) {
     // 重新渲染当前卡片
     const latest = getAccountData(currentAccount).sort((a,b) => b.date.localeCompare(a.date))[0];
     if (latest) renderFunnel(latest.metrics);
+}
+
+function renderMonthlyGoal(data) {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    const daysInMonth = new Date(year, month, 0).getDate();
+    
+    // 筛选本月数据
+    const monthPrefix = `${year}-${String(month).padStart(2, '0')}`;
+    const monthData = data.filter(d => d.date.startsWith(monthPrefix));
+    
+    // 汇总本月数据
+    let totalGmv = 0, totalCost = 0;
+    monthData.forEach(d => {
+        totalGmv += d.metrics['直播期间累计成交金额'] || 0;
+        totalCost += d.metrics['广告消耗'] || 0;
+    });
+    const totalRoi = totalCost > 0 ? totalGmv / totalCost : 0;
+    
+    // 目标值（可编辑）
+    const targets = {
+        gmv: 1000000,  // 100万
+        cost: 500000,   // 50万
+        roi: 2.2
+    };
+    
+    const gmvProgress = Math.min(totalGmv / targets.gmv * 100, 100);
+    const costProgress = Math.min(totalCost / targets.cost * 100, 100);
+    const roiProgress = Math.min(totalRoi / targets.roi * 100, 100);
+    
+    const getStatus = (progress) => progress >= 100 ? 'good' : progress >= 70 ? 'warn' : 'bad';
+    const getStatusText = (progress, isRoi) => {
+        if (progress >= 100) return isRoi ? '✓ 已达标' : '✓ 已达成';
+        if (progress > 0) return `还差 ${(100 - progress).toFixed(1)}%`;
+        return '暂无数据';
+    };
+    
+    document.getElementById('monthlyGoal').innerHTML = `
+        <div class="monthly-goal-header">
+            <span class="monthly-goal-title">📈 本月运营目标</span>
+            <span class="monthly-goal-date">${year}年${month}月 · 已过${day}天</span>
+        </div>
+        <div class="monthly-goal-cards">
+            <div class="monthly-goal-card gmv">
+                <div class="goal-card-header">
+                    <span class="goal-card-label">本月GMV</span>
+                    <span class="goal-card-target">目标 <input type="number" value="${targets.gmv/10000}" onchange="updateMonthlyGoal('gmv', this.value)"> 万</span>
+                </div>
+                <div class="goal-card-value">¥${formatNumber(totalGmv)}</div>
+                <div class="goal-progress">
+                    <div class="goal-progress-fill ${getStatus(gmvProgress)}" style="width: ${gmvProgress}%"></div>
+                </div>
+                <div class="goal-status">
+                    <span class="goal-status-text ${getStatus(gmvProgress)}">${getStatusText(gmvProgress)}</span>
+                    <span class="goal-status-percent">完成 ${gmvProgress.toFixed(1)}%</span>
+                </div>
+            </div>
+            <div class="monthly-goal-card cost">
+                <div class="goal-card-header">
+                    <span class="goal-card-label">本月消耗</span>
+                    <span class="goal-card-target">目标 <input type="number" value="${targets.cost/10000}" onchange="updateMonthlyGoal('cost', this.value)"> 万</span>
+                </div>
+                <div class="goal-card-value">¥${formatNumber(totalCost)}</div>
+                <div class="goal-progress">
+                    <div class="goal-progress-fill ${getStatus(costProgress)}" style="width: ${costProgress}%"></div>
+                </div>
+                <div class="goal-status">
+                    <span class="goal-status-text ${getStatus(costProgress)}">${getStatusText(costProgress)}</span>
+                    <span class="goal-status-percent">完成 ${costProgress.toFixed(1)}%</span>
+                </div>
+            </div>
+            <div class="monthly-goal-card roi">
+                <div class="goal-card-header">
+                    <span class="goal-card-label">本月投产ROI</span>
+                    <span class="goal-card-target">目标 <input type="number" value="${targets.roi}" step="0.1" onchange="updateMonthlyGoal('roi', this.value)"></span>
+                </div>
+                <div class="goal-card-value">${totalRoi > 0 ? totalRoi.toFixed(2) : '-'}</div>
+                <div class="goal-progress">
+                    <div class="goal-progress-fill ${getStatus(roiProgress)}" style="width: ${roiProgress}%"></div>
+                </div>
+                <div class="goal-status">
+                    <span class="goal-status-text ${getStatus(roiProgress)}">${getStatusText(roiProgress, true)}</span>
+                    <span class="goal-status-percent">完成 ${roiProgress.toFixed(1)}%</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function updateMonthlyGoal(type, value) {
+    // 目标值修改后重新渲染
+    const data = getAccountData(currentAccount);
+    renderMonthlyGoal(data);
 }
 
 function renderSchedule() {
