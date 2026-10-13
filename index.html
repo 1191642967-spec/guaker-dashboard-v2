@@ -422,17 +422,16 @@ function renderDaily() {
     }
     const m = latest.metrics;
     
-    // 从主播数据汇总当天消耗
-    const dayAnchors = anchors.filter(a => a.date === latest.date);
-    const totalCost = dayAnchors.reduce((sum, a) => sum + (a.metrics['消耗'] || 0), 0);
+    // 从日数据直接读取消耗和ROI
     const gmv = m['直播期间累计成交金额'] || 0;
-    const roi = totalCost > 0 ? gmv / totalCost : null;
+    const totalCost = m['广告消耗'] || 0;
+    const roi = m['投产比ROI'] || (totalCost > 0 ? gmv / totalCost : null);
     
     // KPI Cards - GMV、消耗、投产放前面
     const kpis = [
         { label: '📅 数据日期', value: latest.date, sub: '昨日数据' },
         { label: '💰 GMV成交金额', value: formatMoney(gmv), sub: '累计成交' },
-        { label: '📊 广告消耗', value: formatMoney(totalCost), sub: dayAnchors.length + '位主播' },
+        { label: '📊 广告消耗', value: formatMoney(totalCost), sub: '千川投放' },
         { label: '⚡ 投产比ROI', value: roi ? roi.toFixed(2) : '-', sub: roi >= 2 ? '优秀' : roi >= 1 ? '达标' : '待提升', color: roi >= 2 ? 'good' : roi >= 1 ? 'warn' : 'bad' },
         { label: '⏱️ 直播时长', value: m['直播时长(h)'] ? m['直播时长(h)'] + 'h' : '-', sub: '小时' },
         { label: '👥 进入人数', value: formatNumber(m['进入直播间人数']), sub: 'UV' },
