@@ -425,6 +425,7 @@ function renderDaily() {
         { label: '👥 进入人数', value: formatNumber(m['进入直播间人数']), sub: 'UV' },
         { label: '👁️ 曝光人数', value: formatNumber(m['直播间曝光人数']), sub: '曝光量' },
         { label: '🎯 曝光-进入转化率', value: formatPercent(m['曝光-进入转化率']), sub: '流量转化' },
+        { label: '⏱️ 时均GMV', value: formatMoney(m['时均GMV']), sub: '每小时产出' },
     ];
     
     document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
