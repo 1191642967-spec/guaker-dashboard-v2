@@ -315,18 +315,6 @@ body {
                 </div>
             </div>
         </div>
-
-        <!-- 主播对比图 -->
-        <div class="chart-grid">
-            <div class="chart-card">
-                <div class="chart-title">📊 主播GMV对比</div>
-                <div class="chart-container" id="chart-anchor-gmv"></div>
-            </div>
-            <div class="chart-card">
-                <div class="chart-title">⚡ 主播ROI对比</div>
-                <div class="chart-container" id="chart-anchor-roi"></div>
-            </div>
-        </div>
     </div>
 
     <!-- Stage Section -->
@@ -780,29 +768,6 @@ function renderAnchor() {
         </tr>
     `).join('');
     
-    // Anchor GMV chart
-    if (charts['chart-anchor-gmv']) charts['chart-anchor-gmv'].dispose();
-    const chart1 = echarts.init(document.getElementById('chart-anchor-gmv'));
-    charts['chart-anchor-gmv'] = chart1;
-    chart1.setOption({
-        tooltip: { trigger: 'axis' },
-        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-        xAxis: { type: 'category', data: stats.map(s => s.anchor), axisLabel: { color: '#888', rotate: 30 } },
-        yAxis: { type: 'value', axisLabel: { color: '#888' }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } } },
-        series: [{ type: 'bar', data: stats.map(s => s.gmv), itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#f5af19' }, { offset: 1, color: '#f12711' }]) } }]
-    });
-    
-    // Anchor ROI chart
-    if (charts['chart-anchor-roi']) charts['chart-anchor-roi'].dispose();
-    const chart2 = echarts.init(document.getElementById('chart-anchor-roi'));
-    charts['chart-anchor-roi'] = chart2;
-    chart2.setOption({
-        tooltip: { trigger: 'axis' },
-        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-        xAxis: { type: 'category', data: stats.map(s => s.anchor), axisLabel: { color: '#888', rotate: 30 } },
-        yAxis: { type: 'value', axisLabel: { color: '#888' }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } } },
-        series: [{ type: 'bar', data: stats.map(s => s.avgRoi), itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#43e97b' }, { offset: 1, color: '#38f9d7' }]) } }]
-    });
 }
 
 function getWeekNumber(date) {
