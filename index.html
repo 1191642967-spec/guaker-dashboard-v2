@@ -1134,13 +1134,20 @@ function captureScreen() {
     btn.innerHTML = '⏳ 截图中...';
     btn.disabled = true;
     
-    // 截取整个看板内容
-    const target = document.body;
+    // 截取看板内容区域，去掉两边空白
+    const target = document.querySelector('.container');
+    const rect = target.getBoundingClientRect();
+    
     html2canvas(target, {
         backgroundColor: '#0f0f23',
         scale: 2,
         useCORS: true,
-        logging: false
+        logging: false,
+        width: rect.width,
+        windowWidth: rect.width,
+        x: 0,
+        scrollX: 0,
+        scrollY: -window.scrollY
     }).then(canvas => {
         // 转换为图片并下载
         const link = document.createElement('a');
