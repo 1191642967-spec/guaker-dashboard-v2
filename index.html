@@ -591,7 +591,7 @@ function renderDaily() {
         { label: '💰 GMV成交金额', value: formatMoney(gmv), sub: '累计成交' },
         { label: '📊 广告消耗', value: formatMoney(totalCost), sub: '千川投放' },
         { label: '⚡ 投产比ROI', value: roi ? roi.toFixed(2) : '-', sub: roi >= 2 ? '优秀' : roi >= 1 ? '达标' : '待提升', color: roi >= 2 ? 'good' : roi >= 1 ? 'warn' : 'bad' },
-        { label: '⏱️ 直播时长', value: m['直播时长(h)'] ? m['直播时长(h)'] + 'h' : '-', sub: '小时' },
+        { label: '⏱️ 直播时长', value: m['直播时长(h)'] ? m['直播时长(h)'].toFixed(1) + 'h' : '-', sub: '小时' },
         { label: '👥 进入人数', value: formatNumber(m['进入直播间人数']), sub: 'UV' },
         { label: '👁️ 曝光人数', value: formatNumber(m['直播间曝光人数']), sub: '曝光量' },
         { label: '🎯 曝光-进入转化率', value: formatPercent(m['曝光-进入转化率']), sub: '流量转化' },
