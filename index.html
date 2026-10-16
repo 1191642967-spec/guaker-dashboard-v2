@@ -552,11 +552,10 @@ function formatPercent(n) {
     return (n * 100).toFixed(2) + '%';
 }
 
-// 全局目标值（用户可调整）
+// 全局目标值（按账号分别保存，用户可调整）
 let monthlyTargets = {
-    gmv: 1000000,  // 100万
-    cost: 500000,   // 50万
-    roi: 2.2
+    '桂格优选': { gmv: 1000000, cost: 500000, roi: 2.2 },
+    '桂格官方': { gmv: 1000000, cost: 500000, roi: 2.2 }
 };
 
 function formatMoney(n) {
@@ -784,8 +783,8 @@ function renderMonthlyGoal(data) {
     });
     const totalRoi = totalCost > 0 ? totalGmv / totalCost : 0;
     
-    // 目标值（可编辑，使用全局变量保存）
-    const targets = monthlyTargets;
+    // 目标值（可编辑，按账号分别保存）
+    const targets = monthlyTargets[currentAccount] || { gmv: 1000000, cost: 500000, roi: 2.2 };
     
     const gmvProgress = Math.min(totalGmv / targets.gmv * 100, 100);
     const costProgress = Math.min(totalCost / targets.cost * 100, 100);
@@ -851,14 +850,17 @@ function renderMonthlyGoal(data) {
 }
 
 function updateMonthlyGoal(type, value) {
-    // 更新全局目标值
+    // 更新当前账号的目标值
     const numValue = parseFloat(value) || 0;
+    if (!monthlyTargets[currentAccount]) {
+        monthlyTargets[currentAccount] = { gmv: 1000000, cost: 500000, roi: 2.2 };
+    }
     if (type === 'gmv') {
-        monthlyTargets.gmv = numValue * 10000;  // 输入的是万，转换成元
+        monthlyTargets[currentAccount].gmv = numValue * 10000;  // 输入的是万，转换成元
     } else if (type === 'cost') {
-        monthlyTargets.cost = numValue * 10000;
+        monthlyTargets[currentAccount].cost = numValue * 10000;
     } else if (type === 'roi') {
-        monthlyTargets.roi = numValue;
+        monthlyTargets[currentAccount].roi = numValue;
     }
     // 重新渲染
     const data = getAccountData(currentAccount);
