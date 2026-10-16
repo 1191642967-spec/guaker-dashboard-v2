@@ -554,7 +554,7 @@ function formatPercent(n) {
 
 function formatMoney(n) {
     if (n === null || n === undefined || n === '' || isNaN(n)) return '-';
-    return '¥' + formatNumber(n, 2);
+    return '¥' + Number(n).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function renderAll() {
@@ -806,7 +806,7 @@ function renderMonthlyGoal(data) {
                     <span class="goal-card-label">本月GMV</span>
                     <span class="goal-card-target">目标 <input type="number" value="${targets.gmv/10000}" onchange="updateMonthlyGoal('gmv', this.value)"> 万</span>
                 </div>
-                <div class="goal-card-value">¥${formatNumber(totalGmv)}</div>
+                <div class="goal-card-value">¥${Number(totalGmv).toLocaleString('zh-CN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</div>
                 <div class="goal-progress">
                     <div class="goal-progress-fill ${getStatus(gmvProgress)}" style="width: ${gmvProgress}%"></div>
                 </div>
@@ -820,7 +820,7 @@ function renderMonthlyGoal(data) {
                     <span class="goal-card-label">本月消耗</span>
                     <span class="goal-card-target">目标 <input type="number" value="${targets.cost/10000}" onchange="updateMonthlyGoal('cost', this.value)"> 万</span>
                 </div>
-                <div class="goal-card-value">¥${formatNumber(totalCost)}</div>
+                <div class="goal-card-value">¥${Number(totalCost).toLocaleString('zh-CN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</div>
                 <div class="goal-progress">
                     <div class="goal-progress-fill ${getStatus(costProgress)}" style="width: ${costProgress}%"></div>
                 </div>
