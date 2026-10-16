@@ -559,6 +559,12 @@ let monthlyTargets = {
     '桂格官方': { gmv: 1200000, cost: 550000, roi: 2.2 }
 };
 
+// 转化率目标（按账号分别保存）
+let conversionTargets = {
+    '桂格优选': [15, 90, 30, 15],
+    '桂格官方': [15, 90, 30, 15]
+};
+
 function formatMoney(n) {
     if (n === null || n === undefined || n === '' || isNaN(n)) return '-';
     return '¥' + Number(n).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -725,11 +731,12 @@ function renderFunnel(m) {
     const rate3 = productExposure > 0 ? (productClick / productExposure) * 100 : 0;
     const rate4 = productClick > 0 ? (buyers / productClick) * 100 : 0;
     
+    const targets = conversionTargets[currentAccount] || [15, 90, 30, 15];
     const items = [
-        { label: '曝光→观看', value: rate1, target: 15 },
-        { label: '观看→商品曝光', value: rate2, target: 90 },
-        { label: '商品曝光→点击', value: rate3, target: 30 },
-        { label: '商品点击→成交', value: rate4, target: 15 },
+        { label: '曝光→观看', value: rate1, target: targets[0] },
+        { label: '观看→商品曝光', value: rate2, target: targets[1] },
+        { label: '商品曝光→点击', value: rate3, target: targets[2] },
+        { label: '商品点击→成交', value: rate4, target: targets[3] },
     ];
     
     document.getElementById('funnel').innerHTML = items.map((item, i) => {
@@ -757,10 +764,14 @@ function renderFunnel(m) {
 }
 
 function updateTarget(input) {
-    // 目标值修改后可以在这里保存，目前只是前端显示
     const index = parseInt(input.dataset.index);
     const value = parseFloat(input.value) || 0;
-    // 重新渲染当前卡片
+    // 更新当前账号的转化率目标
+    if (!conversionTargets[currentAccount]) {
+        conversionTargets[currentAccount] = [15, 90, 30, 15];
+    }
+    conversionTargets[currentAccount][index] = value;
+    // 重新渲染
     const latest = getAccountData(currentAccount).sort((a,b) => b.date.localeCompare(a.date))[0];
     if (latest) renderFunnel(latest.metrics);
 }
