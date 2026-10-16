@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>桂格直播间运营数据看板</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -1117,7 +1118,45 @@ function adjustColor(color, amount) {
 }
 
 function captureScreen() {
-    alert('截图功能：请使用浏览器自带截图功能（Ctrl+Shift+A 或 Win+Shift+S）');
+    const btn = document.querySelector('.screenshot-btn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ 截图中...';
+    btn.disabled = true;
+    
+    // 截取整个看板内容
+    const target = document.body;
+    html2canvas(target, {
+        backgroundColor: '#0f0f23',
+        scale: 2,
+        useCORS: true,
+        logging: false
+    }).then(canvas => {
+        // 转换为图片并下载
+        const link = document.createElement('a');
+        link.download = `桂格看板_${new Date().toISOString().slice(0,10)}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        
+        // 复制到剪贴板
+        canvas.toBlob(blob => {
+            if (navigator.clipboard && window.ClipboardItem) {
+                navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+            }
+        });
+        
+        btn.innerHTML = '✅ 已保存';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }, 2000);
+    }).catch(err => {
+        console.error('截图失败:', err);
+        btn.innerHTML = '❌ 截图失败';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }, 2000);
+    });
 }
 
 window.addEventListener('resize', () => {
