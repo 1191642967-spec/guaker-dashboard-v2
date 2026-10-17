@@ -584,9 +584,9 @@ function renderDaily() {
     renderMonthlyGoal(data);
     
     // 根据实际当前日期取昨天的数据，找不到则取数据里最新的一天
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const now = new Date();
+    const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
     let latest = data.find(d => d.date === yesterdayStr);
     if (!latest) {
         const sorted = [...data].sort((a, b) => a.date.localeCompare(b.date));
