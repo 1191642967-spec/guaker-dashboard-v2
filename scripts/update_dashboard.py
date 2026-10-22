@@ -54,15 +54,16 @@ def load_cells(name):
     cells = data['ranges'][0]['cells']
     return [[(c.get('value', '') if c else '') for c in row] for row in cells]
 
-# ---------- 日数据列映射（10/20 已对照已部署备份逐列验证） ----------
-# 优选: 列0日期, 1GMV,2消耗,3开始时间,5时长分钟,6曝光人数,8观看人数,12PCU,13ACU,14人均分钟,
-#       15评论,16加团,17增粉,21商品曝光人数,22商品点击人数,25订单数,29成交件数,30成交人数
+# ---------- 日数据列映射（每次更新前以飞书表头为准核对） ----------
+# 优选（列0=日期文本，非时间）: 1直播间GMV,2直播间消耗,3开始时间,5时长分钟,6曝光人数,8观看人数,
+#       11最高在线PCU,12平均在线ACU,13人均分钟,14评论,15加团,16增粉,20商品曝光人数,21商品点击人数,
+#       24订单数,28成交件数,29成交人数
 YOUXUAN = dict(
-    start=3, dur=5, exp=6, enter=8, pcu=12, acu=13, avg=14, comment=15,
-    join=16, fan=17, pexp=21, pclick=22, order=25, pieces=29, buyer=30,
+    start=3, dur=5, exp=6, enter=8, pcu=11, acu=12, avg=13, comment=14,
+    join=15, fan=16, pexp=20, pclick=21, order=24, pieces=28, buyer=29,
     gmv=1, cost=2, cfgmv=None, cfcost=None,
 )
-# 官方: 列0日期,1总GMV,2总消耗,3乘方GMV,4乘方消耗,7开始时间,9时长分钟,10曝光人数,12观看人数,
+# 官方: 1总GMV,2总消耗,3乘方GMV,4乘方消耗,7开始时间,9时长分钟,10曝光人数,12观看人数,
 #       16PCU,17ACU,18人均分钟,19评论,20加团,21增粉,25商品曝光人数,26商品点击人数,
 #       29订单数,33成交件数,34成交人数
 GUANGFANG = dict(
@@ -81,10 +82,11 @@ def parse_daily(cells, cols, account):
     records = []
     for ds in sorted(by_day):
         dr = by_day[ds]
-        first = dr[0]
         def col(row, k):
             i = cols[k]
             return tn(row[i]) if i is not None and i < len(row) else None
+        # 汇总场：当天总GMV非空的第一场；都为空时回退第一行
+        first = next((r for r in dr if col(r, 'gmv') is not None), dr[0])
 
         gmv = col(first, 'gmv') or 0
         cost = col(first, 'cost') or 0
