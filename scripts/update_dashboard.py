@@ -97,7 +97,7 @@ def parse_daily(cells, cols, account):
         exposure = sum((col(r, 'exp') or 0) for r in dr)
         enter = sum((col(r, 'enter') or 0) for r in dr)
         pexp = sum((col(r, 'pexp') or 0) for r in dr)
-        comment = sum((col(r, 'comment') or 0) for r in dr)
+        comment_raw = sum((col(r, 'comment') or 0) for r in dr)
         join = sum((col(r, 'join') or 0) for r in dr)
         fan = sum((col(r, 'fan') or 0) for r in dr)
 
@@ -112,7 +112,12 @@ def parse_daily(cells, cols, account):
         # ---- 错乱保护：数值违反漏斗/量级关系时置 None，不写入错误值 ----
         pclick = pclick_raw if (pexp <= 0 or pclick_raw <= pexp) else None
         order = order_raw if abs(order_raw - round(order_raw)) < 0.01 else None
+        # 订单数物理上不应反超观看人数；超过说明订单列串列，置空
+        if order is not None and enter > 0 and order_raw > enter:
+            order = None
         buyer = buyer_raw if (pieces <= 0 or buyer_raw >= pieces * 0.3) else None
+        # 评论数必须为整数次，小数说明评论列串列，置空
+        comment = comment_raw if abs(comment_raw - round(comment_raw)) < 0.01 else None
         # 人均观看历史正常区间约 0.05~5 分钟；超出说明在线/人均列整体错位，PCU/ACU 一并置空
         online_bad = not (0.05 <= avg_min <= 5)
         avg_watch = avg_min * 60 if not online_bad else None
