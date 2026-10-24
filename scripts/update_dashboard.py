@@ -110,7 +110,13 @@ def parse_daily(cells, cols, account):
         buyer_raw = sum((col(r, 'buyer') or 0) for r in dr)
 
         # ---- 错乱保护：数值违反漏斗/量级关系时置 None，不写入错误值 ----
-        pclick = pclick_raw if (pexp <= 0 or pclick_raw <= pexp) else None
+        # 商品曝光人数正常约为观看人数 80%~95%；有观看(>5)却极小(<30%)说明该列串列，置空；零场次(enter<=5)保留原值
+        pexp_safe = None if (enter > 5 and pexp > 0 and pexp < enter * 0.30) else pexp
+        # 商品点击人数：曝光缺失即置空；否则点击人数不应反超商品曝光
+        if pexp_safe is None:
+            pclick = None
+        else:
+            pclick = pclick_raw if (pexp_safe <= 0 or pclick_raw <= pexp_safe) else None
         order = order_raw if abs(order_raw - round(order_raw)) < 0.01 else None
         # 订单数物理上不应反超观看人数；超过说明订单列串列，置空
         if order is not None and enter > 0 and order_raw > enter:
@@ -130,7 +136,7 @@ def parse_daily(cells, cols, account):
             '进入直播间人数': enter,
             '直播间曝光人数': exposure,
             '观看UV': enter,
-            '商品曝光人数': pexp,
+            '商品曝光人数': pexp_safe,
             '商品点击人数': pclick,
             'PCU在线峰值': pcu,
             'ACU在线均值': acu,
@@ -208,7 +214,7 @@ def main():
         tc = sum(x['metrics']['广告消耗'] for x in octd)
         last = dl[-1]
         m = last['metrics']
-        miss = [k for k in ('商品点击人数', '订单数', '成交人数', 'PCU在线峰值', 'ACU在线均值', '人均观看（秒）') if m.get(k) is None]
+        miss = [k for k in ('商品曝光人数', '商品点击人数', '订单数', '成交人数', 'PCU在线峰值', 'ACU在线均值', '人均观看（秒）') if m.get(k) is None]
         flag = f"  ⚠待核对: {','.join(miss)}" if miss else ""
         print(f"{account} 日数据 {len(octd)}天 最新{last['date']} "
               f"GMV=¥{m['直播期间累计成交金额']:,.2f} 消耗=¥{m['广告消耗']:,.2f}{flag}")
