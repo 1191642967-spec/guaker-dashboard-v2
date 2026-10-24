@@ -504,8 +504,8 @@ let rawData = null;
 let currentAccount = '桂格优选';
 let charts = {};
 
-// Load data
-fetch('data.json')
+// Load data（带缓存穿透：每次加载都取最新 data.json，避免浏览器/GitHub Pages CDN 缓存导致看到旧数据）
+fetch('data.json?v=' + Date.now(), { cache: 'no-store' })
     .then(r => r.json())
     .then(data => {
         rawData = data;
