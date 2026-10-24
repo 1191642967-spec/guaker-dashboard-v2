@@ -12,8 +12,10 @@
   官方主播  wiki=Be7lwLLzJimaA0kYrXhcSsWWnoD  sheet=q1dp44
 
 口径：
-  GMV/消耗/乘方推GMV/乘方推消耗 取每天第一场汇总值；其余指标累加所有场次，PCU 取 max。
-  源表当天个别列串列时，异常指标置 None（前端显示 '-'），不臆造修正。
+  GMV/消耗/乘方推GMV/乘方推消耗 取每天第一场汇总值；其余指标累加所有场次，PCU 取 max；
+  ACU 与人均观看为"均值"类指标，取各场次均值（多场次求和会失真）。
+  串列自愈：源表偶发"从某列起整体右移1格"，脚本逐行用漏斗/量级一致性检测，命中则按右移1格
+  重读该行列位并自愈；无法确认的仍置 None（前端显示 '-'），绝不臆造。
 """
 import json, re, os
 from datetime import datetime
@@ -72,7 +74,54 @@ GUANGFANG = dict(
     gmv=1, cost=2, cfgmv=3, cfcost=4,
 )
 
+# ---------- 串列自愈：按行检测"从某列起整体右移1格"并纠正 ----------
+def shift_cols(cols):
+    """受"整体右移"影响的指标列（header 列号 >= 11 的列，不含 gmv/cost/start/dur/exp/enter）。"""
+    return {k: c for k, c in cols.items() if c is not None and c >= 11}
+
+def read_row(row, cols, scols, off):
+    """读取单行指标；scols 中的列按 off 偏移读取，其余按原列位。"""
+    m = {}
+    for k, c in cols.items():
+        if c is None:
+            m[k] = None
+        elif off and k in scols and c + 1 < len(row):
+            m[k] = tn(row[c + 1])
+        else:
+            m[k] = tn(row[c]) if c < len(row) else None
+    return m
+
+def _row_score(m):
+    """单行内部一致性打分（漏斗/量级关系），满分6；用于判断该行是否串列。"""
+    s = 0
+    enter, pexp = m['enter'], m['pexp']
+    pclick, order = m['pclick'], m['order']
+    pieces, buyer = m['pieces'], m['buyer']
+    avg, pcu, acu = m['avg'], m['pcu'], m['acu']
+    if enter and enter > 5 and pexp is not None and 0.3 * enter <= pexp <= 1.5 * enter:
+        s += 1
+    if pexp is not None and pclick is not None and 0 <= pclick <= pexp:
+        s += 1
+    if enter and enter > 0 and order is not None and 0 <= order <= enter and abs(order - round(order)) < 0.01:
+        s += 1
+    if pieces and pieces > 0 and buyer is not None and buyer >= 0.3 * pieces:
+        s += 1
+    if avg is not None and 0.05 <= avg <= 5:
+        s += 1
+    if pcu and pcu > 0 and acu is not None and 2 <= acu <= pcu:
+        s += 1
+    return s
+
+def _detect_off(row, cols, scols):
+    """检测该行是否整体右移1格：仅当按 +1 读取明显更自洽时才判为移位。"""
+    s0 = _row_score(read_row(row, cols, scols, 0))
+    s1 = _row_score(read_row(row, cols, scols, 1))
+    if s1 - s0 >= 2 and s1 >= 4:
+        return 1
+    return 0
+
 def parse_daily(cells, cols, account):
+    scols = shift_cols(cols)
     by_day = defaultdict(list)
     for row in cells[1:]:
         if len(row) <= cols['start']: continue
@@ -82,49 +131,49 @@ def parse_daily(cells, cols, account):
     records = []
     for ds in sorted(by_day):
         dr = by_day[ds]
-        def col(row, k):
-            i = cols[k]
-            return tn(row[i]) if i is not None and i < len(row) else None
-        # 汇总场：当天总GMV非空的第一场；都为空时回退第一行
-        first = next((r for r in dr if col(r, 'gmv') is not None), dr[0])
+        # 逐行检测并读取（自愈右移），再按日聚合
+        rows_m = []
+        for r in dr:
+            off = _detect_off(r, cols, scols)
+            rows_m.append(read_row(r, cols, scols, off))
 
+        def col(m, k):
+            return m.get(k)
+
+        first = next((m for m in rows_m if col(m, 'gmv') is not None), rows_m[0])
         gmv = col(first, 'gmv') or 0
         cost = col(first, 'cost') or 0
         cfgmv = col(first, 'cfgmv') or 0 if cols['cfgmv'] is not None else 0
         cfcost = col(first, 'cfcost') or 0 if cols['cfcost'] is not None else 0
 
-        duration = sum((col(r, 'dur') or 0) for r in dr) / 60
-        exposure = sum((col(r, 'exp') or 0) for r in dr)
-        enter = sum((col(r, 'enter') or 0) for r in dr)
-        pexp = sum((col(r, 'pexp') or 0) for r in dr)
-        comment_raw = sum((col(r, 'comment') or 0) for r in dr)
-        join = sum((col(r, 'join') or 0) for r in dr)
-        fan = sum((col(r, 'fan') or 0) for r in dr)
+        duration = sum((col(m, 'dur') or 0) for m in rows_m) / 60
+        exposure = sum((col(m, 'exp') or 0) for m in rows_m)
+        enter = sum((col(m, 'enter') or 0) for m in rows_m)
+        pexp = sum((col(m, 'pexp') or 0) for m in rows_m)
+        comment_raw = sum((col(m, 'comment') or 0) for m in rows_m)
+        join = sum((col(m, 'join') or 0) for m in rows_m)
+        fan = sum((col(m, 'fan') or 0) for m in rows_m)
 
-        pcu_raw = max((col(r, 'pcu') or 0) for r in dr)
-        acu_raw = sum((col(r, 'acu') or 0) for r in dr)
-        avg_min = sum((col(r, 'avg') or 0) for r in dr)
-        pclick_raw = sum((col(r, 'pclick') or 0) for r in dr)
-        order_raw = sum((col(r, 'order') or 0) for r in dr)
-        pieces = sum((col(r, 'pieces') or 0) for r in dr)
-        buyer_raw = sum((col(r, 'buyer') or 0) for r in dr)
+        pcu_raw = max((col(m, 'pcu') or 0) for m in rows_m)
+        # ACU / 人均观看为"均值"类指标：取各场次均值（多场次求和会失真/溢出）
+        acu_raw = (sum((col(m, 'acu') or 0) for m in rows_m) / len(rows_m)) if rows_m else 0
+        avg_min = (sum((col(m, 'avg') or 0) for m in rows_m) / len(rows_m)) if rows_m else 0
+        pclick_raw = sum((col(m, 'pclick') or 0) for m in rows_m)
+        order_raw = sum((col(m, 'order') or 0) for m in rows_m)
+        pieces = sum((col(m, 'pieces') or 0) for m in rows_m)
+        buyer_raw = sum((col(m, 'buyer') or 0) for m in rows_m)
 
-        # ---- 错乱保护：数值违反漏斗/量级关系时置 None，不写入错误值 ----
-        # 商品曝光人数正常约为观看人数 80%~95%；有观看(>5)却极小(<30%)说明该列串列，置空；零场次(enter<=5)保留原值
+        # ---- 错乱保护：数值仍违反漏斗/量级关系时置 None，不写入错误值（自愈后仍保留兜底） ----
         pexp_safe = None if (enter > 5 and pexp > 0 and pexp < enter * 0.30) else pexp
-        # 商品点击人数：曝光缺失即置空；否则点击人数不应反超商品曝光
         if pexp_safe is None:
             pclick = None
         else:
             pclick = pclick_raw if (pexp_safe <= 0 or pclick_raw <= pexp_safe) else None
         order = order_raw if abs(order_raw - round(order_raw)) < 0.01 else None
-        # 订单数物理上不应反超观看人数；超过说明订单列串列，置空
         if order is not None and enter > 0 and order_raw > enter:
             order = None
         buyer = buyer_raw if (pieces <= 0 or buyer_raw >= pieces * 0.3) else None
-        # 评论数必须为整数次，小数说明评论列串列，置空
         comment = comment_raw if abs(comment_raw - round(comment_raw)) < 0.01 else None
-        # 人均观看历史正常区间约 0.05~5 分钟；超出说明在线/人均列整体错位，PCU/ACU 一并置空
         online_bad = not (0.05 <= avg_min <= 5)
         avg_watch = avg_min * 60 if not online_bad else None
         acu_ok = (not online_bad) and pcu_raw > 0 and 2 <= acu_raw <= pcu_raw
